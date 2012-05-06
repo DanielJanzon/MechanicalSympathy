@@ -1,0 +1,27 @@
+$ # Ok, the basic idea is that values on the same cache line
+$ # makes the owner ship of that cache line go back and forth
+$ # when different cores write to the values, even though
+$ # they are not the same memory location
+$ gcc -o with-false-sharing -std=gnu99 -DALIGNMENT=4 false-sharing.c -lpthread
+$ ./with-false-sharing
+completed in 5857588 us
+1000000000 & 1000000000
+$ ./with-false-sharing
+completed in 5817855 us
+1000000000 & 1000000000
+$
+$ # Now let's try to separate the values onto different
+$ # cache lines, which are typically 64 bytes long
+$
+$ gcc -o avoid-false-sharing -std=gnu99 -DALIGNMENT=64 false-sharing.c -lpthread
+$ ./avoid-false-sharing
+completed in 2391348 us
+1000000000 & 1000000000
+$ ./avoid-false-sharing
+completed in 2411820 us
+1000000000 & 1000000000
+$
+$ # So in conclusion avoiding false sharing makes things more than
+$ # twice as fast, and the results seems to be pretty consistent
+$
+
